@@ -1,5 +1,7 @@
 import cv2
 from ultralytics import YOLO
+from concurrent.futures import ProcessPoolExecutor
+import time
 
 def load_model(model_path='yolo11x.pt'):
     """Загрузка модели YOLO из указанного файла."""
@@ -8,48 +10,51 @@ def load_model(model_path='yolo11x.pt'):
 
 def resize_image(image, target_width=640):
     """Изменение размера изображения, сохраняя соотношение сторон."""
-    # Получение оригинальных размеров
     original_height, original_width = image.shape[:2]
-    
-    # Вычисление нового размера с сохранением соотношения сторон
     aspect_ratio = original_width / original_height
     target_height = int(target_width / aspect_ratio)
-    
     resized = cv2.resize(image, (target_width, target_height), interpolation=cv2.INTER_AREA)
     return resized
 
 def preprocess_image(image_path):
-    """Предварительная обработка изображения: чтение, изменение размера и преобразование в RGB."""
-    # Чтение изображения
+    """Предварительная обработка изображения: чтение и изменение размера."""
     img = cv2.imread(image_path)
-
-    # Проверка на успешное чтение изображения
     if img is None:
         raise ValueError(f"Не удалось прочитать изображение по пути: {image_path}")
-
-    # Изменение размера изображения
     img = resize_image(img)
-
-    # Преобразование из BGR в RGB
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
     return img
 
-def detect_objects(model, image_path):
+def convert_to_rgb(image):
+    """Преобразование изображения из BGR в RGB."""
+    return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+def detect_objects(model, img):
     """Детекция объектов на изображении и отображение результатов."""
-    # Предобработка изображения
-    img = preprocess_image(image_path)
-
-    # Выполнение детектирования
     results = model(img)
-
-    # Перебор результатов и отображение каждого
     for result in results:
         result.show()  # Отобразить изображение с аннотациями
 
+def process_single_image(image_path):
+    """Обработка одного изображения с использованием процессов."""
+    model = load_model()  # Загрузка модели внутри процесса
+    # Предобработка изображения
+    img = preprocess_image(image_path)
+
+    # Преобразование цвета
+    img_rgb = convert_to_rgb(img)
+
+    # Выполнение детектирования
+    detect_objects(model, img_rgb)
+
 if __name__ == "__main__":
-    # Загрузка модели
-    model = load_model()
+    # Путь к изображению
+    image_path = './input_image2.jpg'  # Укажите свой путь к изображению
     
-    image_path = './input_image2.jpg'  
-    detect_objects(model, image_path)
+    # Обработка одного изображения с использованием многопроцессорности
+    start_time = time.time()
+    
+    with ProcessPoolExecutor() as executor:
+        executor.submit(process_single_image, image_path)
+
+    elapsed_time = time.time() - start_time
+    print(f"Время выполнения: {elapsed_time:.2f} секунд")
