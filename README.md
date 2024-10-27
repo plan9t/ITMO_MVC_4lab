@@ -57,6 +57,11 @@
 
 0: 384x640 1 knife, 458.1ms
 Speed: 15.5ms preprocess, 458.1ms inference, 9.5ms postprocess per image at shape (1, 3, 384, 640)
+
+Оптимизация путём предварительной обработки изображения:
+0: 384x640 1 knife, 412.7ms
+Speed: 3.5ms preprocess, 412.7ms inference, 12.1ms postprocess per image at shape (1, 3, 384, 640)
+
 ![alt text](src/input_image.jpg)
 
 ![alt text](<good_results/image copy 2.png>)
@@ -64,6 +69,12 @@ Speed: 15.5ms preprocess, 458.1ms inference, 9.5ms postprocess per image at shap
 
 0: 448x640 6 knifes, 557.8ms
 Speed: 8.3ms preprocess, 557.8ms inference, 9.1ms postprocess per image at shape (1, 3, 448, 640)
+
+Оптимизация путём предварительной обработки изображения:
+0: 448x640 6 knifes, 446.1ms
+Speed: 3.8ms preprocess, 446.1ms inference, 13.5ms postprocess per image at shape (1, 3, 448, 640)
+
+
 ![alt text](src/input_image1.jpg)
 
 ![alt text](good_results/image.png)
@@ -71,6 +82,12 @@ Speed: 8.3ms preprocess, 557.8ms inference, 9.1ms postprocess per image at shape
 
 0: 640x640 3 knifes, 786.8ms
 Speed: 9.2ms preprocess, 786.8ms inference, 8.4ms postprocess per image at shape (1, 3, 640, 640)
+
+Оптимизация путём предварительной обработки изображения:
+0: 640x640 2 knifes, 625.5ms
+Speed: 3.0ms preprocess, 625.5ms inference, 8.5ms postprocess per image at shape (1, 3, 640, 640)
+
+
 ![alt text](src/input_image2.jpg)
 
 ![alt text](<good_results/image copy.png>)
