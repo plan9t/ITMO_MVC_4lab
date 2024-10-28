@@ -1,7 +1,6 @@
 import cv2
 from ultralytics import YOLO
-from concurrent.futures import ProcessPoolExecutor
-import time
+import psutil
 
 def load_model(model_path='yolo11x.pt'):
     """Загрузка модели YOLO из указанного файла."""
@@ -32,11 +31,11 @@ def detect_objects(model, img):
     """Детекция объектов на изображении и отображение результатов."""
     results = model(img)
     for result in results:
-        result.show()  # Отобразить изображение с аннотациями
+        result.show() 
 
 def process_single_image(image_path):
-    """Обработка одного изображения с использованием процессов."""
-    model = load_model()  # Загрузка модели внутри процесса
+    """Обработка одного изображения."""
+    model = load_model()  # Загрузка модели
     # Предобработка изображения
     img = preprocess_image(image_path)
 
@@ -46,15 +45,25 @@ def process_single_image(image_path):
     # Выполнение детектирования
     detect_objects(model, img_rgb)
 
+def measure_memory_usage(function, *args):
+    """Измерение использования памяти во время выполнения функции."""
+    process = psutil.Process()
+    
+    # Начальное использование памяти
+    memory_before = process.memory_info().rss  # В байтах
+    
+    function(*args)  # Вызов функции
+    
+    # Использование памяти после выполнения функции
+    memory_after = process.memory_info().rss  # В байтах
+
+    return (memory_after - memory_before) / (1024 * 1024)  # Возвращаем разницу в МБ
+
 if __name__ == "__main__":
     # Путь к изображению
-    image_path = './input_image2.jpg'  # Укажите свой путь к изображению
+    image_path = './input_image.jpg'  # Укажите свой путь к изображению
     
-    # Обработка одного изображения с использованием многопроцессорности
-    start_time = time.time()
-    
-    with ProcessPoolExecutor() as executor:
-        executor.submit(process_single_image, image_path)
+    # Оценка использования памяти при обработке изображения
+    memory_used = measure_memory_usage(process_single_image, image_path)
 
-    elapsed_time = time.time() - start_time
-    print(f"Время выполнения: {elapsed_time:.2f} секунд")
+    print(f"Затраченная память на вычисления: {memory_used:.2f} МБ")
